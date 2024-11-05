@@ -11,9 +11,34 @@ library(beeswarm)
 ```
 
 ```{r}
+font_import() 
+loadfonts(device = "mac")
+```
+
+```{r}
 user_data <- read.csv("user_behavior_dataset.csv", header = TRUE)
 ```
 
+```{r}
+user_data <- user_data |>
+  mutate(Device.Model = as.factor(Device.Model),
+         Operating.System = as.factor(Operating.System),
+         Gender = as.factor(Gender))
+```
+
+```{r}
+table1 <- table(user_data$Operating.System)
+table1
+```
+
+```{r}
+table2 <- table(user_data$Gender, user_data$Operating.System)
+table2
+```
+```{r}
+table3 <- table(user_data$Gender, user_data$User.Behavior.Class)
+table3
+```
 
 ```{r}
 user_means <- user_data |>
@@ -80,8 +105,4 @@ plot6 <- ggplot(user_data, aes(Screen.On.Time..hours.day.)) + geom_density(aes(f
 plot6
 ```
 
-```{r}
-font_import() 
-loadfonts(device = "mac")
-```
 
