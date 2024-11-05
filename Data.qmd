@@ -1,6 +1,3 @@
-```{r}
-install.packages('ggbeeswarm')
-```
 
 ```{r}
 library(tidyverse)
@@ -10,7 +7,6 @@ library(ggplot2)
 library(dplyr)
 library(tidyr)
 library(scales)
-library(hrbrthemes)
 library(beeswarm)
 ```
 
@@ -31,30 +27,33 @@ user_means <- user_data |>
 ```
 
 ```{r}
-plot1 <- ggplot(data = user_means, aes(x = Operating.System, y = mean_age)) + 
-                  geom_bar(stat = "identity") + 
-                  labs(title = "Bar Plot of Mean Age by Operating System")
+plot1 <- ggplot(user_data, aes(x = Battery.Drain..mAh.day., fill = Operating.System)) + 
+  geom_histogram(binwidth = 40, alpha = 0.7) +
+  labs(title = "Histogram of Battery Drainage by Operating System", x = "Battery Drainage", fill = "Operating System")
 plot1                  
 ```
 
 ```{r}
-plot2 <- ggplot(data = user_data, aes(x = Gender, y = App.Usage.Time..min.day.)) + 
-  geom_boxplot() +
-  labs( title = "Boxplot of App Usage in Minutes/Day by Gender")
+plot2 <- ggplot(user_data, aes(x = App.Usage.Time..min.day., y = Number.of.Apps.Installed, color = Gender)) + geom_point() + geom_jitter(width = 0.1, alpha = 0.3) + labs(title = "Scatterplot of App Usage Time and Number of Apps by Gender", x = "App Usage (min/day)", y = "Number of Apps") +
+  scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) 
 plot2
 ```
 
 ```{r}
-plot3 <- ggplot(user_data, aes(x = Screen.On.Time..hours.day., y = Number.of.Apps.Installed, color = Gender)) + geom_point() + geom_jitter(width = 0.1, alpha = 0.3) + labs(title = "Screen Time (Hours/Day) & Number of Apps Installed by Behavior Class & Gender", x = "Screen Time", y = "Number of Apps") +
-  facet_grid(cols = vars(User.Behavior.Class))
+plot3 <- ggplot(user_data, aes(x = Screen.On.Time..hours.day., y = Number.of.Apps.Installed, color = Gender)) + 
+  geom_jitter(width = 0.1, alpha = 0.3) + 
+  labs(title = "Screen Time (Hours/Day) & Number of Apps Installed by Behavior Class & Gender", x = "Screen Time", y = "Number of Apps") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(cols = vars(User.Behavior.Class)) +
+  scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) 
 plot3
 ```
 ```{r}
 plot4 <- ggplot(data = user_data, mapping = aes(x = Age, y = Data.Usage..MB.day., fill = Gender)) +
   geom_area() + 
-  scale_fill_ipsum() +
+  scale_fill_manual(values = c("Male" = "blue", "Female" = "pink")) +
   scale_y_comma() +
-  labs(title="Gender distribution of Age and Data Usage Per Day") +
+  labs(title="Gender distribution of Age and Data Usage Per Day", x = "Age", y = "Data Usage (MB/Day)") +
   theme_ipsum_rc(grid="XY") +
   theme(axis.text.x=element_text(hjust=c(0, 0.5, 0.5, 0.5, 1))) +
   theme(legend.position="bottom")
@@ -66,8 +65,19 @@ plot4
 ```{r}
 plot5 <- ggplot(data = user_data, aes(x = factor(Operating.System), y = Battery.Drain..mAh.day., color=factor(Gender))) + 
   ggbeeswarm::geom_quasirandom() +
+  scale_color_manual(values = c("Male" = "blue", "Female" = "pink")) +
   labs(title = "Beeswarm Plot of Battery Drainage by Operating System & Gender", x = "Operating System", y = "Battery Drainage")
 plot5
+```
+
+```{r}
+plot6 <- ggplot(user_data, aes(Screen.On.Time..hours.day.)) + geom_density(aes(fill=factor(Device.Model)), alpha=0.8) + 
+    labs(title="Density plot", 
+         subtitle="Mean Screen Time Grouped by Gender",
+         x="Mean Screen Time",
+         y = "Density",
+         fill="Device Model")
+plot6
 ```
 
 ```{r}
