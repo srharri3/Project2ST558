@@ -64,7 +64,9 @@ plot4
 
 
 ```{r}
-plot5 <- ggplot(data = user_means, aes(mean_age, mean_app_time)) + geom_beeswarm()
+plot5 <- ggplot(data = user_data, aes(x = factor(Operating.System), y = Battery.Drain..mAh.day., color=factor(Gender))) + 
+  ggbeeswarm::geom_quasirandom() +
+  labs(title = "Beeswarm Plot of Battery Drainage by Operating System & Gender", x = "Operating System", y = "Battery Drainage")
 plot5
 ```
 
