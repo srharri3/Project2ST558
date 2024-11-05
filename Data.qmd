@@ -1,0 +1,75 @@
+```{r}
+install.packages('ggbeeswarm')
+```
+
+```{r}
+library(tidyverse)
+library(ggpointdensity)
+library(hrbrthemes)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(scales)
+library(hrbrthemes)
+library(beeswarm)
+```
+
+```{r}
+user_data <- read.csv("user_behavior_dataset.csv", header = TRUE)
+```
+
+
+```{r}
+user_means <- user_data |>
+  group_by(Operating.System) |>
+  summarise(mean_age = mean(Age, na.rm = TRUE),
+            mean_app_time = mean(App.Usage.Time..min.day.),
+            mean_screen_on = mean(Screen.On.Time..hours.day.),
+            mean_battery = mean(Battery.Drain..mAh.day.),
+            mean_apps_installed = mean(Number.of.Apps.Installed),
+            mean_data = mean(Data.Usage..MB.day.))
+```
+
+```{r}
+plot1 <- ggplot(data = user_means, aes(x = Operating.System, y = mean_age)) + 
+                  geom_bar(stat = "identity") + 
+                  labs(title = "Bar Plot of Mean Age by Operating System")
+plot1                  
+```
+
+```{r}
+plot2 <- ggplot(data = user_data, aes(x = Gender, y = App.Usage.Time..min.day.)) + 
+  geom_boxplot() +
+  labs( title = "Boxplot of App Usage in Minutes/Day by Gender")
+plot2
+```
+
+```{r}
+plot3 <- ggplot(user_data, aes(x = Screen.On.Time..hours.day., y = Number.of.Apps.Installed, color = Gender)) + geom_point() + geom_jitter(width = 0.1, alpha = 0.3) + labs(title = "Screen Time (Hours/Day) & Number of Apps Installed by Behavior Class & Gender", x = "Screen Time", y = "Number of Apps") +
+  facet_grid(cols = vars(User.Behavior.Class))
+plot3
+```
+```{r}
+plot4 <- ggplot(data = user_data, mapping = aes(x = Age, y = Data.Usage..MB.day., fill = Gender)) +
+  geom_area() + 
+  scale_fill_ipsum() +
+  scale_y_comma() +
+  labs(title="Gender distribution of Age and Data Usage Per Day") +
+  theme_ipsum_rc(grid="XY") +
+  theme(axis.text.x=element_text(hjust=c(0, 0.5, 0.5, 0.5, 1))) +
+  theme(legend.position="bottom")
+plot4
+```
+
+
+
+```{r}
+plot5 <- ggplot(data = user_means, aes(mean_age, mean_app_time)) + geom_beeswarm()
+plot5
+```
+
+```{r}
+font_import() 
+loadfonts(device = "mac")
+```
+
