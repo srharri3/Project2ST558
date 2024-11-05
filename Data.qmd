@@ -52,6 +52,17 @@ user_means <- user_data |>
 ```
 
 ```{r}
+female_data <- user_data |>
+  filter(Gender == "Female") |>
+   summarize(mean_age_f = mean(Age),
+            median_age_f = median(Age),
+            mean_apps_f = mean(Number.of.Apps.Installed),
+            median_apps_f = median(Number.of.Apps.Installed),
+            mean_data_F = mean(Data.Usage..MB.day.),
+            median_data_F = median(Data.Usage..MB.day.))
+```
+
+```{r}
 plot1 <- ggplot(user_data, aes(x = Battery.Drain..mAh.day., fill = Operating.System)) + 
   geom_histogram(binwidth = 40, alpha = 0.7) +
   labs(title = "Histogram of Battery Drainage by Operating System", x = "Battery Drainage", fill = "Operating System")
