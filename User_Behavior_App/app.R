@@ -29,7 +29,7 @@ ui <- dashboardPage(
               titlePanel("About the Data"),
               fluidRow(
                 column(12,
-                       p("This app allows users to explore data related to user behaviors on various mobile devices."),,
+                       p("This app allows users to explore data related to user behaviors on various mobile devices."),
                        br(),
                        img(src = "https://example.com/image.png", height = "200px")
                 )
@@ -40,32 +40,28 @@ ui <- dashboardPage(
               titlePanel("Data Download"),
               sidebarLayout(
                 sidebarPanel(
-                      checkboxGroupInput("DeviceModel", "Select Device Model(s):",
-                                         choices = c("Google Pixel 5", "OnePlus 9", "Xiaomi Mi 11", 	
-                                                     "iPhone 12", "Samsung Galaxy S21"),  # Replace with actual categories
-                                         selected = c("Google Pixel 5", "OnePlus 9", "Xiaomi Mi 11", 	
-                                                      "iPhone 12", "Samsung Galaxy S21")),
-                      
-                      checkboxGroupInput("OperatingSystem", "Select Operating System(s):",
-                                         choices = c("Android", "iOS"),
-                                         selected = c("Android", "iOS")),
-                      
-                      checkboxGroupInput("Gender", "Select Gender(s):",
-                                         choices = c("Male", "Female"),
-                                         selected = c("Male", "Female")),
-                      
-                      # Action Button to apply the filters
-                      actionButton("apply", "Apply Filters")
-                    ),
-                  )
-                  ),
+                  checkboxGroupInput("DeviceModel", "Select Device Model(s):",
+                                     choices = c("Google Pixel 5", "OnePlus 9", "Xiaomi Mi 11", "iPhone 12", "Samsung Galaxy S21"),  # Replace with actual categories
+                                     selected = c("Google Pixel 5", "OnePlus 9", "Xiaomi Mi 11", "iPhone 12", "Samsung Galaxy S21")),
                   
+                  checkboxGroupInput("OperatingSystem", "Select Operating System(s):",
+                                     choices = c("Android", "iOS"),
+                                     selected = c("Android", "iOS")),
+                  
+                  checkboxGroupInput("Gender", "Select Gender(s):",
+                                     choices = c("Male", "Female"),
+                                     selected = c("Male", "Female")),
+                  
+                  # Action Button to apply the filters
+                  actionButton("apply", "Apply Filters")
+                ),
+                
                 mainPanel(
                   DT::dataTableOutput("data_table"),
                   downloadButton("download_data", "Download Filtered Data")
                 )
               )
-            ),
+      )
       
       tabItem(tabName = "dataexplore",
               titlePanel("Data Exploration"),
@@ -97,34 +93,6 @@ server <- function(input, output, session) {
     read.csv("user_behavior_dataset.csv", header = TRUE)
   })
   
-  observe({
-    data <- user_data()
-    
-    updateCheckboxGroupInput(session, "DeviceModel", 
-                             choices = unique(data$DeviceModel), 
-                             selected = unique(data$DeviceModel))
-    
-    updateCheckboxGroupInput(session, "OperatingSystem", 
-                             choices = unique(data$OperatingSystem), 
-                             selected = unique(data$OperatingSystem))
-    
-    updateCheckboxGroupInput(session, "Gender", 
-                             choices = unique(data$Gender), 
-                             selected = unique(data$Gender))
-    
-    updateCheckboxGroupInput(session, "DeviceModel_download", 
-                             choices = unique(data$DeviceModel), 
-                             selected = unique(data$DeviceModel))
-    
-    updateCheckboxGroupInput(session, "OperatingSystem_download", 
-                             choices = unique(data$OperatingSystem), 
-                             selected = unique(data$OperatingSystem))
-    
-    updateCheckboxGroupInput(session, "Gender_download", 
-                             choices = unique(data$Gender), 
-                             selected = unique(data$Gender))
-  })
-  
   output$slider_ui_1 <- renderUI({
     req(input$numeric_var_1)
     data <- user_data()
@@ -143,46 +111,24 @@ server <- function(input, output, session) {
                 value = range_vals, step = 1)
   })
   
-  filtered_data <- reactive({
-    req(input$apply)  # Trigger only when "Apply Filters" is clicked
-    data <- user_data()
-    
-    # Apply categorical filters
-    data_filtered <- data[data$DeviceModel %in% input$DeviceModel, ]
-    data_filtered <- data_filtered[data_filtered$OperatingSystem %in% input$OperatingSystem, ]
-    data_filtered <- data_filtered[data_filtered$Gender %in% input$Gender, ]
-    
-    # Apply numeric filters
-    data_filtered <- data_filtered[data_filtered[[input$numeric_var_1]] >= input$numeric_range_1[1] & 
-                                     data_filtered[[input$numeric_var_1]] <= input$numeric_range_1[2], ]
-    
-    data_filtered <- data_filtered[data_filtered[[input$numeric_var_2]] >= input$numeric_range_2[1] & 
-                                     data_filtered[[input$numeric_var_2]] <= input$numeric_range_2[2], ]
-    
-    return(data_filtered)
-  })
-  
-  # Render filtered data table
-  output$data_table <- DT::renderDataTable({
-    filtered_data()
-  })
-  
-  output$download_data <- downloadHandler(
-    filename = function() { paste("filtered_data.csv") },
-    content = function(file) {
-      write.csv(filtered_data(), file)
-    }
-  )
-  
   # Summary statistics and plot rendering in Data Exploration Tab
   observeEvent(input$update_summary, {
-    req(input$summary_var, input$numeric_summary_var)
-    data <- filtered_data()
+    req(input$summary_var)
+    data <- user_data()
     
     # Render numeric summaries
     output$summary_stats <- renderPrint({
-      summary(data[[input$numeric_summary_var]])
+      summary(data[[input$summary_var]])
     })
+    
+    output$summary_plot <- renderPlot({
+      ggplot(data, aes_string(x = input$summary_var)) + 
+        geom_bar() +
+        theme_minimal() +
+        labs(title = paste("Distribution of", input$summary_var))
+    })
+  })
+}
     
     output$summary_plot <- renderPlot({
       ggplot(data, aes_string(x = input$summary_var, y = input$numeric_summary_var)) + 
