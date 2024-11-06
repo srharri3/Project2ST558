@@ -11,6 +11,10 @@ library(beeswarm)
 ```
 
 ```{r}
+str(user_data)
+```
+
+```{r}
 font_import() 
 loadfonts(device = "mac")
 ```
